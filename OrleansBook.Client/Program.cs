@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Orleans;
 using Orleans.Configuration;
+using Microsoft.Extensions.Logging;
 using OrleansBook.GrainInterfaces;
 
 namespace OrleansBook.Client
@@ -12,6 +13,11 @@ namespace OrleansBook.Client
     {
       var client = new ClientBuilder()
         .UseLocalhostClustering()
+        .ConfigureLogging(logging =>
+        {
+          logging.AddConsole();
+          logging.SetMinimumLevel(LogLevel.Warning);
+        })
         .Build();
 
       using (client)
