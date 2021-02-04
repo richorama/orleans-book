@@ -19,6 +19,7 @@ namespace OrleansBook.Host
           logging.AddConsole();
           logging.SetMinimumLevel(LogLevel.Warning);
         })
+        .UseDashboard()
         .Build();
 
       await host.StartAsync();
