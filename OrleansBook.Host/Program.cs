@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Orleans;
 using Orleans.Hosting;
+using Orleans.Statistics;
 using OrleansBook.GrainClasses;
 
 namespace OrleansBook.Host
@@ -20,6 +21,7 @@ namespace OrleansBook.Host
           logging.SetMinimumLevel(LogLevel.Warning);
         })
         .UseDashboard()
+        .UseLinuxEnvironmentStatistics()
         .Build();
 
       await host.StartAsync();
