@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Orleans;
-using Orleans.Configuration;
 using Microsoft.Extensions.Logging;
 using OrleansBook.GrainInterfaces;
 
 namespace OrleansBook.Client
 {
+
+
   class Program
   {
     static async Task Main(string[] args)
@@ -28,9 +29,15 @@ namespace OrleansBook.Client
         {
           Console.WriteLine("Please enter a Grain ID...");
           var grainId = Console.ReadLine();
-          var grain = client.GetGrain<IExampleGrain>(grainId);
-          var result = await grain.AddOne();
-          Console.WriteLine($"Grain {grainId} is now {result}");
+          var grain = client.GetGrain<ICacheGrain<StorageValue>>(grainId);
+          
+          var currentValue = await grain.Get();
+          Console.WriteLine($"Grain {grainId} = {currentValue?.Value ?? "null"}");
+
+          Console.WriteLine("Please enter a value...");
+          var value = Console.ReadLine();
+          await grain.Put(new StorageValue { Value = value });
+
         }
       }
 

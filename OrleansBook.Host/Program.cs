@@ -18,10 +18,11 @@ namespace OrleansBook.Host
         .ConfigureLogging(logging =>
         {
           logging.AddConsole();
-          logging.SetMinimumLevel(LogLevel.Warning);
+          logging.SetMinimumLevel(LogLevel.Information);
         })
         .UseDashboard()
         .UseLinuxEnvironmentStatistics()
+        .AddMemoryGrainStorageAsDefault()
         .Build();
 
       await host.StartAsync();
