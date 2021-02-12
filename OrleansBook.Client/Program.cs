@@ -7,18 +7,12 @@ using OrleansBook.GrainInterfaces;
 namespace OrleansBook.Client
 {
 
-
   class Program
   {
     static async Task Main(string[] args)
     {
       var client = new ClientBuilder()
         .UseLocalhostClustering()
-        .ConfigureLogging(logging =>
-        {
-          logging.AddConsole();
-          logging.SetMinimumLevel(LogLevel.Warning);
-        })
         .Build();
 
       using (client)
@@ -38,6 +32,8 @@ namespace OrleansBook.Client
           var value = Console.ReadLine();
           await grain.Put(new StorageValue { Value = value });
 
+          currentValue = await grain.Get();
+          Console.WriteLine($"Grain {grainId} = {currentValue.Value ?? "null"}");
         }
       }
 
