@@ -16,7 +16,6 @@ namespace OrleansBook.WebApi.Controllers
       _client = client;
     }
 
-    // curl http://localhost:5000/cache/123
     [HttpGet]
     [Route("cache/{key}")]
     public async Task<StorageValue> Get(string key)
@@ -28,7 +27,6 @@ namespace OrleansBook.WebApi.Controllers
       return new StorageValue { Value = null };
     }
 
-    // curl --header "Content-Type: application/json" --request POST --data '{"Value": "Hello World"}' http://localhost:5000/cache/123
     [HttpPost]
     [Route("cache/{key}")]
     public async Task<IActionResult> Post(string key, StorageValue value)
