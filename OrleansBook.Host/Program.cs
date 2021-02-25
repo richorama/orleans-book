@@ -23,6 +23,7 @@ namespace OrleansBook.Host
         .UseDashboard()
         .UseLinuxEnvironmentStatistics()
         .AddMemoryGrainStorageAsDefault()
+        .AddSimpleMessageStreamProvider("SMSProvider")
         .Build();
 
       await host.StartAsync();

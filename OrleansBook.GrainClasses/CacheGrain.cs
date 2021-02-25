@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Orleans;
 using OrleansBook.GrainInterfaces;
 
@@ -8,8 +9,12 @@ namespace OrleansBook.GrainClasses
   {
     public async Task Put(T value)
     {
+      var oldValue = this.State;
       this.State = value;
       await this.WriteStateAsync();
+      var streamProvider = GetStreamProvider("SMSProvider");
+      var stream = streamProvider.GetStream<ValueDelta<T>>(Guid.Empty, "Delta");
+      await stream.OnNextAsync(new ValueDelta<T>(oldValue, value));
     }
     public override Task OnActivateAsync()
     {

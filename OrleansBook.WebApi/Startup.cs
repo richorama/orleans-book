@@ -6,9 +6,35 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Orleans;
+using Orleans.Hosting;
+using Orleans.Streams;
+using OrleansBook.GrainInterfaces;
 
 namespace OrleansBook.WebApi
 {
+
+  class StreamSubscriber : IAsyncObserver<ValueDelta<StorageValue>>
+  {
+    public Task OnCompletedAsync()
+    {
+      Console.WriteLine("Completed");
+      return Task.CompletedTask;
+    }
+
+    public Task OnErrorAsync(Exception ex)
+    {
+      Console.WriteLine("Exception");
+      Console.WriteLine(ex.ToString());
+      return Task.CompletedTask;
+    }
+
+    public Task OnNextAsync(ValueDelta<StorageValue> item, StreamSequenceToken token = null)
+    {
+      Console.WriteLine($"{item.OldValue?.Value ?? "null"} => {item.NewValue?.Value}");
+      return Task.CompletedTask;
+    }
+  }
+
   public class Startup
   {
     public Startup(IConfiguration configuration)
@@ -22,9 +48,13 @@ namespace OrleansBook.WebApi
     {
       var client = new ClientBuilder()
         .UseLocalhostClustering()
+        .AddSimpleMessageStreamProvider("SMSProvider")
         .Build();
 
       await client.Connect();
+      var streamProvider  = client.GetStreamProvider("SMSProvider");
+      var stream = streamProvider.GetStream<ValueDelta<StorageValue>>(Guid.Empty, "Delta");
+      await stream.SubscribeAsync(new StreamSubscriber());
       return client;
     }
 
@@ -32,6 +62,8 @@ namespace OrleansBook.WebApi
     {
       var client = ConnectToOrleans().Result;
       services.AddSingleton<IClusterClient>(client);
+
+      
 
       services.AddControllers();
     }

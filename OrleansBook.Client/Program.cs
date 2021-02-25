@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Orleans;
 using Microsoft.Extensions.Logging;
 using OrleansBook.GrainInterfaces;
+using Orleans.Hosting;
 
 namespace OrleansBook.Client
 {
@@ -13,6 +14,7 @@ namespace OrleansBook.Client
     {
       var client = new ClientBuilder()
         .UseLocalhostClustering()
+        .AddSimpleMessageStreamProvider("SMSProvider")
         .Build();
 
       using (client)
