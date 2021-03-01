@@ -23,6 +23,7 @@ namespace OrleansBook.Host
         .UseDashboard()
         .UseLinuxEnvironmentStatistics()
         .AddMemoryGrainStorageAsDefault()
+        .AddMemoryGrainStorage("PubSubStore")
         .AddSimpleMessageStreamProvider("SMSProvider")
         .Build();
 

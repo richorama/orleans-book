@@ -62,9 +62,6 @@ namespace OrleansBook.WebApi
     {
       var client = ConnectToOrleans().Result;
       services.AddSingleton<IClusterClient>(client);
-
-      
-
       services.AddControllers();
     }
 
