@@ -12,3 +12,4 @@ namespace OrleansBook.GrainInterfaces
     Task Delete();
   }
 }
+

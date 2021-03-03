@@ -7,19 +7,27 @@ namespace OrleansBook.GrainClasses
 {
   public class CacheGrain<T> : Grain<T>, ICacheGrain<T>
   {
+    Task Publish(T oldValue, T newValue)
+    {
+      var message = new Delta<T>(
+        this.GetPrimaryKeyString(),
+        oldValue,
+        newValue);
+
+      return this
+        .GetStreamProvider("SMSProvider")
+        .GetStream<Delta<T>>(Guid.Empty, "Delta")
+        .OnNextAsync(message);
+    }
+
     public async Task Put(T value)
     {
       var oldValue = this.State;
       this.State = value;
       await this.WriteStateAsync();
-      var streamProvider = GetStreamProvider("SMSProvider");
-      var stream = streamProvider.GetStream<ValueDelta<T>>(Guid.Empty, "Delta");
-      await stream.OnNextAsync(new ValueDelta<T>(oldValue, value));
+      await this.Publish(oldValue, value);
     }
-    public override Task OnActivateAsync()
-    {
-      return base.OnActivateAsync();
-    }
+
     public Task<T> Get()
     {
       return Task.FromResult(this.State);
@@ -28,6 +36,7 @@ namespace OrleansBook.GrainClasses
     public async Task Delete()
     {
       await this.ClearStateAsync();
+      await this.Publish(this.State, default(T));
       this.DeactivateOnIdle();
     }
   }

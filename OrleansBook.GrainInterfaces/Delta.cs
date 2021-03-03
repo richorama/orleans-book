@@ -1,16 +1,18 @@
 namespace OrleansBook.GrainInterfaces
 {
-  public class ValueDelta<T>
+  public class Delta<T>
   {
-    public ValueDelta()
-    {}
+    public Delta()
+    { }
 
-    public ValueDelta(T oldValue, T newValue)
+    public Delta(string key, T oldValue, T newValue)
     {
+      this.Key = key;
       this.OldValue = oldValue;
       this.NewValue = newValue;
     }
 
+    public string Key { get; set; }
     public T OldValue { get; set; }
     public T NewValue { get; set; }
   }

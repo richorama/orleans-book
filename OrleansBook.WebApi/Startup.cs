@@ -13,27 +13,7 @@ using OrleansBook.GrainInterfaces;
 namespace OrleansBook.WebApi
 {
 
-  class StreamSubscriber : IAsyncObserver<ValueDelta<StorageValue>>
-  {
-    public Task OnCompletedAsync()
-    {
-      Console.WriteLine("Completed");
-      return Task.CompletedTask;
-    }
-
-    public Task OnErrorAsync(Exception ex)
-    {
-      Console.WriteLine("Exception");
-      Console.WriteLine(ex.ToString());
-      return Task.CompletedTask;
-    }
-
-    public Task OnNextAsync(ValueDelta<StorageValue> item, StreamSequenceToken token = null)
-    {
-      Console.WriteLine($"{item.OldValue?.Value ?? "null"} => {item.NewValue?.Value}");
-      return Task.CompletedTask;
-    }
-  }
+  
 
   public class Startup
   {
@@ -46,15 +26,18 @@ namespace OrleansBook.WebApi
 
     async Task<IClusterClient> ConnectToOrleans()
     {
-      var client = new ClientBuilder()
-        .UseLocalhostClustering()
-        .AddSimpleMessageStreamProvider("SMSProvider")
-        .Build();
+var client = new ClientBuilder()
+  .UseLocalhostClustering()
+  .AddSimpleMessageStreamProvider("SMSProvider")
+  .Build();
 
       await client.Connect();
-      var streamProvider  = client.GetStreamProvider("SMSProvider");
-      var stream = streamProvider.GetStream<ValueDelta<StorageValue>>(Guid.Empty, "Delta");
-      await stream.SubscribeAsync(new StreamSubscriber());
+      
+await client
+  .GetStreamProvider("SMSProvider")
+  .GetStream<Delta<StorageValue>>(Guid.Empty, "Delta")
+  .SubscribeAsync(new StreamSubscriber());
+
       return client;
     }
 
