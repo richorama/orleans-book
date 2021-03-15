@@ -16,12 +16,12 @@ namespace OrleansBook.GrainClasses
     public BatchGrain(IClusterClient client) =>
       _client = client;
 
-    public Task Put(WithKey<StorageValue>[] values)
+    public Task Put((string,string)[] values)
     {
       var tasks = values.Select(keyValue => 
         _client
-          .GetGrain<IKeyValueGrain>(keyValue.Key)
-          .Put(keyValue.Value.Value)
+          .GetGrain<IKeyValueGrain>(keyValue.Item1)
+          .Put(keyValue.Item2)
       );
 
       return Task.WhenAll(tasks);

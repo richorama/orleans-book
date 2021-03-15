@@ -33,12 +33,10 @@ namespace OrleansBook.WebApi.Controllers
     {
       var grain = this._client.GetGrain<IBatchGrain>(0);
 
-      var input = values.Select(keyValue => new WithKey<StorageValue>{
-        Key = keyValue.Key,
-        Value = new StorageValue{
-          Value= keyValue.Value
-        }
-      }).ToArray();
+      var input = values
+        .Select(keyValue => (keyValue.Key, keyValue.Value))
+        .ToArray();
+
       await grain.Put(input);
 
       return Ok();
