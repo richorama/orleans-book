@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using Orleans;
 
@@ -10,6 +11,8 @@ namespace OrleansBook.GrainInterfaces
     Task<T> Get();
 
     Task Delete();
+
+    Task SetExpiry(TimeSpan timespan);
   }
 }
 

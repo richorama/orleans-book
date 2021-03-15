@@ -25,6 +25,7 @@ namespace OrleansBook.Host
         .AddMemoryGrainStorageAsDefault()
         .AddMemoryGrainStorage("PubSubStore")
         .AddSimpleMessageStreamProvider("SMSProvider")
+        .UseInMemoryReminderService()
         .Build();
 
       await host.StartAsync();

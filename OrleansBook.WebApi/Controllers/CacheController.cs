@@ -35,5 +35,14 @@ namespace OrleansBook.WebApi.Controllers
       await grain.Put(value);
       return Ok();
     }
+
+    [HttpPost]
+    [Route("cache/{key}/expiry/{expiry:int}")]
+    public async Task<IActionResult> Expire(string key, int expiry)
+    {
+      var grain = this._client.GetGrain<ICacheGrain<StorageValue>>(key);
+      await grain.SetExpiry(TimeSpan.FromSeconds(expiry));
+      return Ok();
+    }
   }
 }

@@ -23,8 +23,8 @@ public class StreamSubscriber : IAsyncObserver<Delta<StorageValue>>
     Delta<StorageValue> item,
     StreamSequenceToken token = null)
   {
-    var oldValue = item.OldValue.Value ?? "null";
-    var newValue = item.NewValue.Value ?? "null";
+    var oldValue = item.OldValue?.Value ?? "null";
+    var newValue = item.NewValue?.Value ?? "null";
     var msg = $"{item.Key} : {oldValue} => {newValue}";
     Console.WriteLine(msg);
     return Task.CompletedTask;

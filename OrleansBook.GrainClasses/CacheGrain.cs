@@ -5,7 +5,7 @@ using OrleansBook.GrainInterfaces;
 
 namespace OrleansBook.GrainClasses
 {
-  public class CacheGrain<T> : Grain<T>, ICacheGrain<T>
+  public class CacheGrain<T> : Grain<T>, ICacheGrain<T>, IRemindable
   {
 
     int totalReads = 0;
@@ -69,9 +69,28 @@ namespace OrleansBook.GrainClasses
 
     public async Task Delete()
     {
-      await this.ClearStateAsync();
+      var key = this.GetPrimaryKeyString();
+
+      foreach (var reminder in await this.GetReminders())
+      {
+        await this.UnregisterReminder(reminder);
+      }
+
       await this.Publish(this.State, default(T));
+      await this.ClearStateAsync();
       this.DeactivateOnIdle();
+    }
+
+    public Task SetExpiry(TimeSpan timespan)
+    {
+      var oneHour = TimeSpan.FromHours(1);
+      return this.RegisterOrUpdateReminder("expire", timespan, oneHour);
+    }
+
+    public Task ReceiveReminder(string reminderName, Orleans.Runtime.TickStatus status)
+    {
+      if (reminderName == "expire") return this.Delete();
+      return Task.CompletedTask;
     }
   }
 }
