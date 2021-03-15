@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Orleans;
+using Orleans.Transactions.Abstractions;
 using OrleansBook.GrainInterfaces;
 
 namespace OrleansBook.GrainClasses
@@ -12,6 +13,14 @@ namespace OrleansBook.GrainClasses
     int totalWrites = 0;
     int readsInLastMin = 0;
     int writesInLastMin = 0;
+
+    public CacheGrain(
+      [TransactionalState("value", "TransactionStore")]
+      ITransactionalState<StorageValue> value)
+    {
+      
+    }
+
 
     public override Task OnActivateAsync()
     {
