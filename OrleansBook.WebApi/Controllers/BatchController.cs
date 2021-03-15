@@ -20,13 +20,11 @@ namespace OrleansBook.WebApi.Controllers
 
     [HttpGet]
     [Route("batch/{key}")]
-    public async Task<StorageValue> Get(string key)
+    public async Task<string> Get(string key)
     {
-      var grain = this._client.GetGrain<ICacheGrain<StorageValue>>("x", "StorageValueGrains");
+      var grain = this._client.GetGrain<IKeyValueGrain>(key);
       var result = await grain.Get();
-
-      if (result != null) return result;
-      return new StorageValue { Value = null };
+      return result;
     }
 
     [HttpPost]

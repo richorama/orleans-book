@@ -12,6 +12,7 @@ namespace OrleansBook.GrainInterfaces
 
   public interface IBatchGrain : IGrainWithIntegerKey
   {
+    [Transaction(TransactionOption.Create)]
     Task Put(WithKey<StorageValue>[] values);
   }
 }

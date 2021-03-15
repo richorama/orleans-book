@@ -26,6 +26,9 @@ namespace OrleansBook.Host
         .AddMemoryGrainStorage("PubSubStore")
         .AddSimpleMessageStreamProvider("SMSProvider")
         .UseInMemoryReminderService()
+        .AddAzureTableTransactionalStateStorage("TransactionStore", o => {
+          o.ConnectionString = "DefaultEndpointsProtocol=https;AccountName=two10ra;AccountKey=dmIMUY1mg/qPeOgGmCkO333L26cNcnUA1uMcSSOFMB3cB8LkdDkh02RaYTPLBL8qMqnqazqd6uMxI2bJJEnj0g==";
+        })
         .UseTransactions()
         .Build();
 
