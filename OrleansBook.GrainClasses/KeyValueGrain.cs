@@ -17,6 +17,7 @@ namespace OrleansBook.GrainClasses
       this._value = value;
     }
 
+    [Transaction(TransactionOption.Join)]
     public Task Put(string value)
     {
       return _value.PerformUpdate(x => x.Value = value);
