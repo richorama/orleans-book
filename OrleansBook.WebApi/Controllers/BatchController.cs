@@ -13,19 +13,8 @@ namespace OrleansBook.WebApi.Controllers
   {
     private readonly IClusterClient _client;
 
-    public BatchController(IClusterClient client)
-    {
+    public BatchController(IClusterClient client) => 
       _client = client;
-    }
-
-    [HttpGet]
-    [Route("batch/{key}")]
-    public async Task<string> Get(string key)
-    {
-      var grain = this._client.GetGrain<IKeyValueGrain>(key);
-      var result = await grain.Get();
-      return result;
-    }
 
     [HttpPost]
     [Route("batch")]
@@ -41,7 +30,15 @@ namespace OrleansBook.WebApi.Controllers
 
       return Ok();
     }
-
     
+    [HttpGet]
+    [Route("batch/{key}")]
+    public async Task<string> Get(string key)
+    {
+      var grain = this._client.GetGrain<IKeyValueGrain>(key);
+      var result = await grain.Get();
+      return result;
+    }
+
   }
 }

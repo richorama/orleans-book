@@ -17,17 +17,11 @@ namespace OrleansBook.GrainClasses
       this._value = value;
     }
 
-    [Transaction(TransactionOption.Join)]
-    public Task Put(string value)
-    {
-      return _value.PerformUpdate(x => x.Value = value);
-    }
+    public Task Put(string value) => 
+      _value.PerformUpdate(x => x.Value = value);
 
-    [Transaction(TransactionOption.CreateOrJoin)]
-    Task<string> IKeyValueGrain.Get()
-    {
-      return _value.PerformRead(x => x.Value);
-    }
+    Task<string> IKeyValueGrain.Get() =>
+      _value.PerformRead(x => x.Value);
   }
 }
 
