@@ -8,20 +8,27 @@ namespace OrleansBook.Tests
   [TestClass]
   public class UnitTest1
   {
+    static TestCluster cluster;
+
+    [ClassInitialize]
+    public static void ClassInit(TestContext context)
+    {
+      cluster = new TestClusterBuilder().Build();
+      cluster.Deploy();      
+    }
+
+    [ClassCleanup]
+    public static void ClassCleanup()
+    {
+      cluster.StopAllSilos();
+    }
+
     [TestMethod]
     public async Task TestAddOne()
     {
-      var cluster = new TestClusterBuilder().Build();
-      cluster.Deploy();
-
       var hello = cluster.GrainFactory.GetGrain<IExampleGrain>("test");
       Assert.AreEqual(1, await hello.AddOne());
       Assert.AreEqual(2, await hello.AddOne());
-      Assert.AreEqual(3, await hello.AddOne());
-
-      cluster.StopAllSilos();
-
-
     }
   }
 }
