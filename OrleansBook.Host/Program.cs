@@ -13,7 +13,7 @@ namespace OrleansBook.Host
     static async Task Main()
     {
       var host = new SiloHostBuilder()
-        .ConfigureApplicationParts(parts => parts.AddApplicationPart(typeof(ExampleGrain).Assembly).WithReferences())
+        .ConfigureApplicationParts(parts => parts.AddApplicationPart(typeof(RobotGrain).Assembly).WithReferences())
         .UseLocalhostClustering()
         .ConfigureLogging(logging =>
         {

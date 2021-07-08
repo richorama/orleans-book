@@ -25,17 +25,15 @@ namespace OrleansBook.Client
         {
           Console.WriteLine("Please enter a Grain ID...");
           var grainId = Console.ReadLine();
-          var grain = client.GetGrain<ICacheGrain<StorageValue>>(grainId);
+          var grain = client.GetGrain<IRobotGrain>(grainId);
           
-          var currentValue = await grain.Get();
-          Console.WriteLine($"Grain {grainId} = {currentValue?.Value ?? "null"}");
-
-          Console.WriteLine("Please enter a value...");
+          
+          Console.WriteLine("Please enter an instruction value...");
           var value = Console.ReadLine();
-          await grain.Put(new StorageValue { Value = value });
+          await grain.AddInstruction(value);
 
-          currentValue = await grain.Get();
-          Console.WriteLine($"Grain {grainId} = {currentValue.Value ?? "null"}");
+          var count = await grain.GetInstructionCount();
+          Console.WriteLine($"Instruction count = {count}");
         }
       }
 
