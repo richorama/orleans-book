@@ -23,17 +23,16 @@ namespace OrleansBook.Client
 
         while (true)
         {
-          Console.WriteLine("Please enter a Grain ID...");
+          Console.WriteLine("Please enter a robot name...");
           var grainId = Console.ReadLine();
           var grain = client.GetGrain<IRobotGrain>(grainId);
           
-          
-          Console.WriteLine("Please enter an instruction value...");
-          var value = Console.ReadLine();
-          await grain.AddInstruction(value);
+          Console.WriteLine("Please enter an instruction...");
+          var instruction = Console.ReadLine();
+          await grain.AddInstruction(instruction);
 
           var count = await grain.GetInstructionCount();
-          Console.WriteLine($"Instruction count = {count}");
+          Console.WriteLine($"{grainId} has {count} instruction(s)");
         }
       }
 

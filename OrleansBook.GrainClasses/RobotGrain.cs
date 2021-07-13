@@ -23,8 +23,12 @@ namespace OrleansBook.GrainClasses
 
     public Task<string> GetNextInstruction()
     {
-      if (this.instructions.Count == 0) return Task.FromResult<string>(null);
-      return Task.FromResult(this.instructions.Dequeue());
+      if (this.instructions.Count == 0)
+      {
+        return Task.FromResult<string>(null);
+      }
+      var instruction = this.instructions.Dequeue();
+      return Task.FromResult(instruction);
     }
   }
 }
