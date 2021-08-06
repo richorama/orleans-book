@@ -11,7 +11,7 @@ namespace OrleansBook.GrainClasses
   [Serializable]
   public class RobotState
   {
-    public Queue<string> Instructions { get; set; }
+    public Queue<string> Instructions { get; set; } = new Queue<string>();
   }
 
   
