@@ -7,38 +7,48 @@ using OrleansBook.GrainInterfaces;
 
 namespace OrleansBook.GrainClasses
 {
-  public class RobotGrain : Grain, IRobotGrain
+
+  public class RobotState
+  {
+    public Queue<string> Instructions { get; set; }
+  }
+
+  public class RobotGrain : Grain<RobotState>, IRobotGrain
   {
     ILogger<RobotGrain> logger;
 
     public RobotGrain(ILogger<RobotGrain> logger)
     {
       this.logger = logger;
+      if (null == this.State)
+      {
+        this.State = new RobotState {
+          Instructions = new Queue<string>()
+        };
+      }
     }
     
-    private Queue<string> instructions = new Queue<string>();
-
-    public Task AddInstruction(string instruction)
+    public async Task AddInstruction(string instruction)
     {
       var key = this.GetPrimaryKeyString();
       this.logger.LogWarning(
         $"{key} adding '{instruction}'");
-      this.instructions.Enqueue(instruction);
-      return Task.CompletedTask;
+      this.State.Instructions.Enqueue(instruction);
+      await this.WriteStateAsync();
     }
 
     public Task<int> GetInstructionCount()
     {
-      return Task.FromResult(this.instructions.Count);
+      return Task.FromResult(this.State.Instructions.Count);
     }
 
     public Task<string> GetNextInstruction()
     {
-      if (this.instructions.Count == 0)
+      if (this.State.Instructions.Count == 0)
       {
         return Task.FromResult<string>(null);
       }
-      var instruction = this.instructions.Dequeue();
+      var instruction = this.State.Instructions.Dequeue();
       var key = this.GetPrimaryKeyString();      
       this.logger.LogWarning(
         $"{key} returning '{instruction}'");
