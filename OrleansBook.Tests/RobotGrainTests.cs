@@ -1,10 +1,23 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Orleans.Hosting;
 using Orleans.TestingHost;
 using OrleansBook.GrainInterfaces;
 
 namespace OrleansBook.Tests
 {
+  class SiloBuilderConfigurator : ISiloConfigurator
+  {
+      public void Configure(ISiloBuilder hostBuilder)
+      {
+        hostBuilder.AddMemoryGrainStorage("robotStateStore");
+      }
+  }
+
+
   [TestClass]
   public class RobotGrainTests
   {
@@ -13,7 +26,10 @@ namespace OrleansBook.Tests
     [ClassInitialize]
     public static void ClassInit(TestContext context)
     {
-      cluster = new TestClusterBuilder().Build();
+      cluster = new TestClusterBuilder()
+        .AddSiloBuilderConfigurator<SiloBuilderConfigurator>()
+        .Build();
+      
       cluster.Deploy();      
     }
 
@@ -27,6 +43,7 @@ namespace OrleansBook.Tests
     public async Task TestInstructions()
     {
       var robot = cluster.GrainFactory.GetGrain<IRobotGrain>("test");
+      Assert.IsNotNull(robot);
       await robot.AddInstruction("Do the dishes");
       await robot.AddInstruction("Take out the trash");
       await robot.AddInstruction("Do the laundry");
