@@ -8,12 +8,10 @@ using OrleansBook.GrainInterfaces;
 
 namespace OrleansBook.GrainClasses
 {
-  [Serializable]
   public class RobotState
   {
     public Queue<string> Instructions { get; set; } = new Queue<string>();
   }
-
   
   public class RobotGrain : Grain, IRobotGrain
   {
@@ -31,8 +29,8 @@ namespace OrleansBook.GrainClasses
     
     public async Task AddInstruction(string instruction)
     {
-     var key = this.GetPrimaryKeyString();
-     this.logger.LogWarning($"{key} adding '{instruction}'");
+      var key = this.GetPrimaryKeyString();
+      this.logger.LogWarning($"{key} adding '{instruction}'");
       this.state.State.Instructions.Enqueue(instruction);
       await this.state.WriteStateAsync();
     }
@@ -48,6 +46,7 @@ namespace OrleansBook.GrainClasses
       {
         return null;
       }
+
       var instruction = this.state.State.Instructions.Dequeue();
       var key = this.GetPrimaryKeyString();      
       
