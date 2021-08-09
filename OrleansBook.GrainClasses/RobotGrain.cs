@@ -8,11 +8,6 @@ using OrleansBook.GrainInterfaces;
 
 namespace OrleansBook.GrainClasses
 {
-  public class RobotState
-  {
-    public Queue<string> Instructions { get; set; } = new Queue<string>();
-  }
-  
   public class RobotGrain : Grain, IRobotGrain
   {
     ILogger<RobotGrain> logger;
@@ -31,6 +26,7 @@ namespace OrleansBook.GrainClasses
     {
       var key = this.GetPrimaryKeyString();
       this.logger.LogWarning($"{key} adding '{instruction}'");
+      
       this.state.State.Instructions.Enqueue(instruction);
       await this.state.WriteStateAsync();
     }
