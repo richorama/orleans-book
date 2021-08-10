@@ -22,7 +22,7 @@ namespace OrleansBook.Host
         })
         .UseDashboard()
         .UseLinuxEnvironmentStatistics()
-        .AddMemoryGrainStorageAsDefault()
+        .AddMemoryGrainStorage("robotStateStore")
         .AddMemoryGrainStorage("PubSubStore")
         .AddSimpleMessageStreamProvider("SMSProvider")
         .UseInMemoryReminderService()
