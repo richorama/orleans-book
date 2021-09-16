@@ -8,12 +8,6 @@ using OrleansBook.GrainInterfaces;
 
 namespace OrleansBook.GrainClasses
 {
-  [Serializable]
-  public class RobotState
-  {
-    public Queue<string> Instructions { get; set; }
-  }
-
 
   public class RobotGrain : Grain, IRobotGrain
   {
