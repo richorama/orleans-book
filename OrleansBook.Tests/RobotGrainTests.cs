@@ -67,7 +67,7 @@ namespace OrleansBook.Tests
     public async Task TestInstructions()
     {
       var robot = cluster.GrainFactory.GetGrain<IRobotGrain>("test");
-      Assert.IsNotNull(robot);
+
       await robot.AddInstruction("Do the dishes");
       await robot.AddInstruction("Take out the trash");
       await robot.AddInstruction("Do the laundry");
