@@ -1,11 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Reflection;
+using Moq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
 using Orleans.Hosting;
 using Orleans.Runtime;
 using Orleans.TestingHost;
@@ -15,36 +12,19 @@ using OrleansBook.GrainInterfaces;
 namespace OrleansBook.Tests
 {
 
-  class FakeState<T> : IPersistentState<T>
-  {
-    public T State { get; set; }
-
-    public string Etag { get; set; }
-
-    public bool RecordExists => 
-      throw new NotImplementedException();
-
-    public Task ClearStateAsync() => 
-      throw new NotImplementedException();
-
-    public Task ReadStateAsync() =>
-      throw new NotImplementedException();
-
-    public Task WriteStateAsync() =>
-      throw new NotImplementedException();
-  }
-
   class SiloBuilderConfigurator : ISiloConfigurator
   {
     public void Configure(ISiloBuilder hostBuilder)
     {
       hostBuilder.AddMemoryGrainStorage("robotStateStore");
 
-      var fakeState = new FakeState<RobotState>();
-      
+      var mockState = new Mock<IPersistentState<RobotState>>();
+      mockState.SetupGet(s => s.State).Returns(new RobotState());
+
+
       hostBuilder.ConfigureServices(services =>
       {
-        services.AddSingleton<IPersistentState<RobotState>>(fakeState);
+        services.AddSingleton<IPersistentState<RobotState>>(mockState.Object);
         services.AddSingleton<ILogger<RobotGrain>>(
             new Mock<ILogger<RobotGrain>>().Object);
       });
