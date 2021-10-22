@@ -17,44 +17,39 @@ namespace OrleansBook.Tests
 
   class FakeState<T> : IPersistentState<T>
   {
-    public T State {get;set;}
+    public T State { get; set; }
 
-    public string Etag {get;set;}
+    public string Etag { get; set; }
 
-    public bool RecordExists => this.State is not null;
+    public bool RecordExists => 
+      throw new NotImplementedException();
 
-    public Task ClearStateAsync()
-    {
-      this.State = default(T);
-      return Task.CompletedTask;
-    }
+    public Task ClearStateAsync() => 
+      throw new NotImplementedException();
 
     public Task ReadStateAsync() =>
-      Task.CompletedTask;
+      throw new NotImplementedException();
 
-    public Task WriteStateAsync()
-    {
-      this.Etag = Guid.NewGuid().ToString();
-      return Task.CompletedTask;
-    }
+    public Task WriteStateAsync() =>
+      throw new NotImplementedException();
   }
 
   class SiloBuilderConfigurator : ISiloConfigurator
-{
-  public void Configure(ISiloBuilder hostBuilder)
   {
-    hostBuilder.AddMemoryGrainStorage("robotStateStore");
-
-    var fakeState = new FakeState<RobotState>();
-    
-    hostBuilder.ConfigureServices(services =>
+    public void Configure(ISiloBuilder hostBuilder)
     {
-      services.AddSingleton<IPersistentState<RobotState>>(fakeState);
-      services.AddSingleton<ILogger<RobotGrain>>(
-          new Mock<ILogger<RobotGrain>>().Object);
-    });
+      hostBuilder.AddMemoryGrainStorage("robotStateStore");
+
+      var fakeState = new FakeState<RobotState>();
+      
+      hostBuilder.ConfigureServices(services =>
+      {
+        services.AddSingleton<IPersistentState<RobotState>>(fakeState);
+        services.AddSingleton<ILogger<RobotGrain>>(
+            new Mock<ILogger<RobotGrain>>().Object);
+      });
+    }
   }
-}
 
 
   [TestClass]
