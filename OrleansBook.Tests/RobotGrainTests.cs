@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -13,33 +14,47 @@ using OrleansBook.GrainInterfaces;
 
 namespace OrleansBook.Tests
 {
-  class SiloBuilderConfigurator : ISiloConfigurator
+
+  class FakeState<T> : IPersistentState<T>
   {
-    public void Configure(ISiloBuilder hostBuilder)
+    public T State {get;set;}
+
+    public string Etag {get;set;}
+
+    public bool RecordExists => this.State is not null;
+
+    public Task ClearStateAsync()
     {
-      hostBuilder.AddMemoryGrainStorage("robotStateStore");
+      this.State = default(T);
+      return Task.CompletedTask;
+    }
 
-      var mockState = new Mock<IPersistentState<RobotState>>();
-      mockState.SetupGet(s => s.State).Returns(new RobotState
-      {
-        Instructions = new Queue<string>()
-      });
+    public Task ReadStateAsync() =>
+      Task.CompletedTask;
 
-      var mockMapper = new Mock<IAttributeToFactoryMapper<PersistentStateAttribute>>();
-      mockMapper.Setup(
-        o => 
-          o.GetFactory(
-              It.IsAny<ParameterInfo>(),
-              It.IsAny<PersistentStateAttribute>()))
-        .Returns(_ => mockState.Object);
-
-      hostBuilder.ConfigureServices(services =>
-      {
-        services.AddSingleton(mockMapper.Object);
-        services.AddSingleton<ILogger<RobotGrain>>(new Mock<ILogger<RobotGrain>>().Object);
-      });
+    public Task WriteStateAsync()
+    {
+      this.Etag = Guid.NewGuid().ToString();
+      return Task.CompletedTask;
     }
   }
+
+  class SiloBuilderConfigurator : ISiloConfigurator
+{
+  public void Configure(ISiloBuilder hostBuilder)
+  {
+    hostBuilder.AddMemoryGrainStorage("robotStateStore");
+
+    var fakeState = new FakeState<RobotState>();
+    
+    hostBuilder.ConfigureServices(services =>
+    {
+      services.AddSingleton<IPersistentState<RobotState>>(fakeState);
+      services.AddSingleton<ILogger<RobotGrain>>(
+          new Mock<ILogger<RobotGrain>>().Object);
+    });
+  }
+}
 
 
   [TestClass]
