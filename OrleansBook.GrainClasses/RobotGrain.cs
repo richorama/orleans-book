@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Orleans;
@@ -8,7 +7,6 @@ using OrleansBook.GrainInterfaces;
 
 namespace OrleansBook.GrainClasses
 {
-
   public class RobotGrain : Grain, IRobotGrain
   {
     ILogger<RobotGrain> logger;
@@ -21,6 +19,18 @@ namespace OrleansBook.GrainClasses
     {
       this.logger = logger;
       this.state = state;
+    }
+
+    Task Publish(string instruction)
+    {
+      var message = new InstructionMessage(
+        instruction,
+        this.GetPrimaryKeyString());
+
+      return this
+        .GetStreamProvider("SMSProvider")
+        .GetStream<InstructionMessage>(Guid.Empty, "StartingInstruction")
+        .OnNextAsync(message);
     }
 
     public async Task AddInstruction(string instruction)
@@ -48,6 +58,8 @@ namespace OrleansBook.GrainClasses
 
       this.logger.LogWarning(
         $"{key} returning '{instruction}'");
+
+      await this.Publish(instruction);
 
       await this.state.WriteStateAsync();
       return instruction;

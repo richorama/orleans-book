@@ -6,25 +6,23 @@ using OrleansBook.GrainInterfaces;
 
 namespace OrleansBook.GrainClasses
 {
-  [ImplicitStreamSubscription("Delta")]
-  public class SubscriberGrain : Grain, ISubscriberGrain,  IAsyncObserver<Delta<StorageValue>>
+  [ImplicitStreamSubscription("StartingInstruction")]
+  public class SubscriberGrain : Grain, ISubscriberGrain,  IAsyncObserver<InstructionMessage>
   {
     public override async Task OnActivateAsync()
     {
       var key = this.GetPrimaryKey();
       
       await GetStreamProvider("SMSProvider")
-        .GetStream<Delta<StorageValue>>(key, "Delta")
+        .GetStream<InstructionMessage>(key, "StartingInstruction")
         .SubscribeAsync(this);
 
       await base.OnActivateAsync();
     }
 
-    public Task OnNextAsync(Delta<StorageValue> item, StreamSequenceToken token = null)
+    public Task OnNextAsync(InstructionMessage instruction, StreamSequenceToken token = null)
     {
-      var oldValue = item.OldValue?.Value ?? "null";
-      var newValue = item.NewValue?.Value ?? "null";
-      var msg = $"{item.Key} : {oldValue} => {newValue}";
+      var msg = $"{instruction.Robot} starting \"{instruction.Instruction}\"";
       Console.WriteLine(msg);
       return Task.CompletedTask;
     }
