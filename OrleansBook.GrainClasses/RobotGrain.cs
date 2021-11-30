@@ -7,7 +7,7 @@ using OrleansBook.GrainInterfaces;
 
 namespace OrleansBook.GrainClasses
 {
-  public class RobotGrain : Grain, IRobotGrain
+  public class RobotGrain : Grain, IRobotGrain, IRemindable
   {
     int instructionsEnqueued = 0;
     int instructionsDequeued = 0;
@@ -68,11 +68,22 @@ namespace OrleansBook.GrainClasses
       return instruction;
     }
 
-    public override Task OnActivateAsync()
+    public async override Task OnActivateAsync()
     {
       var oneMinute = TimeSpan.FromMinutes(1);
       this.RegisterTimer(this.ResetStats, null, oneMinute, oneMinute);
-      return base.OnActivateAsync();
+
+      var oneDay = TimeSpan.FromDays(1);
+      await this.RegisterOrUpdateReminder("firmware", oneDay, oneDay);
+      await this.AddInstruction("Update firmware");
+
+      await base.OnActivateAsync();
+    }
+
+    public Task ReceiveReminder(string reminderName, Orleans.Runtime.TickStatus status)
+    {
+      if (reminderName == "firmware") return this.AddInstruction("Update firmware");
+      return Task.CompletedTask;
     }
 
     Task ResetStats(object _)
