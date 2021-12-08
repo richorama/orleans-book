@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Orleans;
 using Orleans.Runtime;
+using Orleans.Transactions.Abstractions;
 using OrleansBook.GrainInterfaces;
 
 namespace OrleansBook.GrainClasses
@@ -12,12 +13,12 @@ namespace OrleansBook.GrainClasses
     int instructionsEnqueued = 0;
     int instructionsDequeued = 0;
     ILogger<RobotGrain> logger;
-    IPersistentState<RobotState> state;
+    ITransactionalState<RobotState> state;
 
     public RobotGrain(
       ILogger<RobotGrain> logger,
       [PersistentState("robotState", "robotStateStore")]
-      IPersistentState<RobotState> state)
+      ITransactionalState<RobotState> state)
     {
       this.logger = logger;
       this.state = state;
@@ -39,32 +40,32 @@ namespace OrleansBook.GrainClasses
     {
       var key = this.GetPrimaryKeyString();
       this.logger.LogWarning($"{key} adding '{instruction}'");
-      this.state.State.Instructions.Enqueue(instruction);
       this.instructionsEnqueued += 1;
-      await this.state.WriteStateAsync();
+      await this.state.PerformUpdate(state => state.Instructions.Enqueue(instruction));
     }
 
-    public Task<int> GetInstructionCount()
+    public async Task<int> GetInstructionCount()
     {
-      return Task.FromResult(this.state.State.Instructions.Count);
+      return await this.state.PerformRead(state => state.Instructions.Count);
     }
 
     public async Task<string> GetNextInstruction()
     {
-      if (this.state.State.Instructions.Count == 0)
-      {
-        return null;
-      }
-
-      var instruction = this.state.State.Instructions.Dequeue();
       var key = this.GetPrimaryKeyString();
+      string instruction = null;
+      await this.state.PerformUpdate(state =>
+      {
+        if (state.Instructions.Count == 0) return;
+        instruction = state.Instructions.Dequeue();
+      });
 
-      this.logger.LogWarning(
-        $"{key} returning '{instruction}'");
-
-      await this.Publish(instruction);
-      this.instructionsDequeued += 1;
-      await this.state.WriteStateAsync();
+      if (null != instruction)
+      {
+        this.logger.LogWarning(
+          $"{key} returning '{instruction}'");
+        await this.Publish(instruction);
+        this.instructionsDequeued += 1;
+      }
       return instruction;
     }
 

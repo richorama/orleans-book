@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using Orleans;
 using Orleans.Concurrency;
@@ -15,8 +14,8 @@ namespace OrleansBook.GrainClasses
     {
       var tasks = values.Select(keyValue =>
         this.GrainFactory
-          .GetGrain<IKeyValueGrain>(keyValue.Item1)
-          .Put(keyValue.Item2)
+          .GetGrain<IRobotGrain>(keyValue.Item1)
+          .AddInstruction(keyValue.Item2)
       );
 
       return Task.WhenAll(tasks);
