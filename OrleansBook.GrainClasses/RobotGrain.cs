@@ -87,18 +87,18 @@ namespace OrleansBook.GrainClasses
       return Task.CompletedTask;
     }
 
-    Task ResetStats(object _)
+    async Task ResetStats(object _)
     {
       var key = this.GetPrimaryKeyString();
 
+      var instructionCount = await this.state.PerformRead(x => x.Instructions.Count);
+
       Console.WriteLine($"{key} enqueued: {this.instructionsEnqueued}");
       Console.WriteLine($"{key} dequeued: {this.instructionsDequeued}");
-      Console.WriteLine($"{key} queued: {this.state.State.Instructions.Count}");
+      Console.WriteLine($"{key} queued: {instructionCount}");
 
       this.instructionsEnqueued = 0;
       this.instructionsDequeued = 0;
-
-      return Task.CompletedTask;
     }
   }
 }
