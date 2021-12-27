@@ -26,19 +26,9 @@ namespace OrleansBook.WebApi.Controllers
         .Select(keyValue => (keyValue.Key, keyValue.Value))
         .ToArray();
 
-      await grain.Put(input);
+      await grain.AddInstructions(input);
 
       return Ok();
     }
-    
-    [HttpGet]
-    [Route("batch/{key}")]
-    public async Task<string> Get(string key)
-    {
-      var grain = this._client.GetGrain<IKeyValueGrain>(key);
-      var result = await grain.Get();
-      return result;
-    }
-
   }
 }

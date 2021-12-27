@@ -6,6 +6,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Orleans.Hosting;
 using Orleans.Runtime;
 using Orleans.TestingHost;
+using Orleans.Transactions.Abstractions;
 using OrleansBook.GrainClasses;
 using OrleansBook.GrainInterfaces;
 
@@ -18,13 +19,13 @@ namespace OrleansBook.Tests
     {
       hostBuilder.AddMemoryGrainStorage("robotStateStore");
 
-      var mockState = new Mock<IPersistentState<RobotState>>();
-      mockState.SetupGet(s => s.State).Returns(new RobotState());
+      var mockState = new Mock<ITransactionalState<RobotState>>();
+      // mockState.SetupGet(s => s.State).Returns(new RobotState());
 
 
       hostBuilder.ConfigureServices(services =>
       {
-        services.AddSingleton<IPersistentState<RobotState>>(mockState.Object);
+        services.AddSingleton<ITransactionalState<RobotState>>(mockState.Object);
         services.AddSingleton<ILogger<RobotGrain>>(
             new Mock<ILogger<RobotGrain>>().Object);
       });

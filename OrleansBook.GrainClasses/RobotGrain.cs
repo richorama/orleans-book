@@ -8,39 +8,24 @@ using OrleansBook.GrainInterfaces;
 
 namespace OrleansBook.GrainClasses
 {
-  public class RobotGrain : Grain, IRobotGrain, IRemindable
+  public class RobotGrain : Grain, IRobotGrain
   {
-    int instructionsEnqueued = 0;
-    int instructionsDequeued = 0;
     ILogger<RobotGrain> logger;
     ITransactionalState<RobotState> state;
 
     public RobotGrain(
       ILogger<RobotGrain> logger,
-      [PersistentState("robotState", "robotStateStore")]
+      [TransactionalState("robotState", "robotStateStore")]
       ITransactionalState<RobotState> state)
     {
       this.logger = logger;
       this.state = state;
     }
 
-    Task Publish(string instruction)
-    {
-      var message = new InstructionMessage(
-        instruction,
-        this.GetPrimaryKeyString());
-
-      return this
-        .GetStreamProvider("SMSProvider")
-        .GetStream<InstructionMessage>(Guid.Empty, "StartingInstruction")
-        .OnNextAsync(message);
-    }
-
     public async Task AddInstruction(string instruction)
     {
       var key = this.GetPrimaryKeyString();
       this.logger.LogWarning($"{key} adding '{instruction}'");
-      this.instructionsEnqueued += 1;
       await this.state.PerformUpdate(state => state.Instructions.Enqueue(instruction));
     }
 
@@ -63,42 +48,8 @@ namespace OrleansBook.GrainClasses
       {
         this.logger.LogWarning(
           $"{key} returning '{instruction}'");
-        await this.Publish(instruction);
-        this.instructionsDequeued += 1;
       }
       return instruction;
-    }
-
-    public async override Task OnActivateAsync()
-    {
-      var oneMinute = TimeSpan.FromMinutes(1);
-      this.RegisterTimer(this.ResetStats, null, oneMinute, oneMinute);
-
-      var oneDay = TimeSpan.FromDays(1);
-      await this.RegisterOrUpdateReminder("firmware", oneDay, oneDay);
-      await this.AddInstruction("Update firmware");
-
-      await base.OnActivateAsync();
-    }
-
-    public Task ReceiveReminder(string reminderName, Orleans.Runtime.TickStatus status)
-    {
-      if (reminderName == "firmware") return this.AddInstruction("Update firmware");
-      return Task.CompletedTask;
-    }
-
-    async Task ResetStats(object _)
-    {
-      var key = this.GetPrimaryKeyString();
-
-      var instructionCount = await this.state.PerformRead(x => x.Instructions.Count);
-
-      Console.WriteLine($"{key} enqueued: {this.instructionsEnqueued}");
-      Console.WriteLine($"{key} dequeued: {this.instructionsDequeued}");
-      Console.WriteLine($"{key} queued: {instructionCount}");
-
-      this.instructionsEnqueued = 0;
-      this.instructionsDequeued = 0;
     }
   }
 }

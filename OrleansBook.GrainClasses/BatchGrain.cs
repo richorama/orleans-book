@@ -6,11 +6,10 @@ using OrleansBook.GrainInterfaces;
 
 namespace OrleansBook.GrainClasses
 {
-
   [StatelessWorker]
   public class BatchGrain : Grain, IBatchGrain
   {
-    public Task Put((string,string)[] values)
+    public Task AddInstructions((string,string)[] values)
     {
       var tasks = values.Select(keyValue =>
         this.GrainFactory
