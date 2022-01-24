@@ -3,29 +3,35 @@ using System.Threading.Tasks;
 using OrleansBook.GrainInterfaces;
 using Orleans.EventSourcing;
 using System.Linq;
+using Orleans.Providers;
 
 namespace OrleansBook.GrainClasses
 {
 
-  public class EventSourcedGrain : JournaledGrain<EventSourcedState, IUpdate>, IEventSourcedGrain
+
+  [StorageProvider(ProviderName = "robotStateStore")]
+  public class EventSourcedGrain : JournaledGrain<EventSourcedState, IUpdate>, IRobotGrain
   {
-    public async Task Next(IUpdate @event)
+    public async Task AddInstruction(string instruction)
     {
-      RaiseEvent(@event);
+      RaiseEvent(new EnqueueInstruction(instruction));
       await ConfirmEvents();
     }
 
-    public Task<(string, int)> Get()
+    public async Task<string> GetNextInstruction()
     {
-      return Task.FromResult((this.State.Value, this.Version));
+      if (this.State.Count == 0) return null;
+      
+      var instruction = new DequeueInstruction();
+      RaiseEvent(instruction);
+      await ConfirmEvents();
+      return instruction.Value;
     }
 
-    public async Task<IUpdate[]> GetHistory(int count)
+    public Task<int> GetInstructionCount()
     {
-      var results = await RetrieveConfirmedEvents(Math.Max(0, this.Version - count), this.Version);
-      return results.ToArray();
+      return Task.FromResult(this.State.Count);
     }
-
   }
 }
 

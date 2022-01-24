@@ -19,8 +19,8 @@ namespace OrleansBook.WebApi.Controllers
     [Route("event/{key}")]
     public async Task<IActionResult> Post(string key, StorageValue value)
     {
-      var grain = this._client.GetGrain<IEventSourcedGrain>(key);
-      await grain.Next(new PerformUpdate(value.Value));
+      var grain = this._client.GetGrain<IRobotGrain>(key, "OrleansBook.GrainClasses.EventSourcedGrain");
+      await grain.AddInstruction(value.Value);
       return Ok();
     }
     
@@ -28,19 +28,18 @@ namespace OrleansBook.WebApi.Controllers
     [Route("event/{key}")]
     public async Task<string> Get(string key)
     {
-      var grain = this._client.GetGrain<IEventSourcedGrain>(key);
-      var result = await grain.Get();
-      return $"{result.Item1}, version {result.Item2}";
+      var grain = this._client.GetGrain<IRobotGrain>(key, "OrleansBook.GrainClasses.EventSourcedGrain");
+      return await grain.GetNextInstruction();
     }
 
-    [HttpGet]
-    [Route("event/{key}/history/{count:int}")]
-    public async Task<string[]> GetHistory(string key, int count)
-    {
-      var grain = this._client.GetGrain<IEventSourcedGrain>(key);
-      var result = await grain.GetHistory(count);
-      return result.Select(x => x.ToString()).ToArray();
-    }
+    // [HttpGet]
+    // [Route("event/{key}/history/{count:int}")]
+    // public async Task<string[]> GetHistory(string key, int count)
+    // {
+    //   var grain = this._client.GetGrain<IEventSourcedGrain>(key);
+    //   var result = await grain.GetHistory(count);
+    //   return result.Select(x => x.ToString()).ToArray();
+    // }
 
   }
 }
