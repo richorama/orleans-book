@@ -2,19 +2,16 @@
 using System.Threading.Tasks;
 using OrleansBook.GrainInterfaces;
 using Orleans.EventSourcing;
-using System.Linq;
 using Orleans.Providers;
 
 namespace OrleansBook.GrainClasses
 {
-
-
   [StorageProvider(ProviderName = "robotStateStore")]
-  public class EventSourcedGrain : JournaledGrain<EventSourcedState, IUpdate>, IRobotGrain
+  public class EventSourcedGrain : JournaledGrain<EventSourcedState, IEvent>, IRobotGrain
   {
     public async Task AddInstruction(string instruction)
     {
-      RaiseEvent(new EnqueueInstruction(instruction));
+      RaiseEvent(new EnqueueEvent(instruction));
       await ConfirmEvents();
     }
 
@@ -22,16 +19,15 @@ namespace OrleansBook.GrainClasses
     {
       if (this.State.Count == 0) return null;
       
-      var instruction = new DequeueInstruction();
-      RaiseEvent(instruction);
+      var @event = new DequeueEvent();
+      RaiseEvent(@event);
       await ConfirmEvents();
-      return instruction.Value;
+      return @event.Value;
+      this.get
     }
 
     public Task<int> GetInstructionCount()
-    {
-      return Task.FromResult(this.State.Count);
-    }
+      => Task.FromResult(this.State.Count);
   }
 }
 
