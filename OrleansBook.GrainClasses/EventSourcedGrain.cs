@@ -7,7 +7,7 @@ using Orleans.Providers;
 namespace OrleansBook.GrainClasses
 {
   [StorageProvider(ProviderName = "robotStateStore")]
-  public class EventSourcedGrain : JournaledGrain<EventSourcedState, IEvent>, IRobotGrain
+  public class EventSourcedGrain : JournaledGrain<EventSourcedState>, IRobotGrain
   {
     public async Task AddInstruction(string instruction)
     {
@@ -23,7 +23,6 @@ namespace OrleansBook.GrainClasses
       RaiseEvent(@event);
       await ConfirmEvents();
       return @event.Value;
-      this.get
     }
 
     public Task<int> GetInstructionCount()
